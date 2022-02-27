@@ -13,11 +13,14 @@ public class Lexer extends Logger {
     }
 
     public List<String> Scan(ArrayList<ArrayList<Character>> chars) {
+        //return value
+
         //temp data structures
         List<Alert> Errors = new ArrayList<Alert>();
         List<Alert> Warnings = new ArrayList<Alert>();
         List<Token> tokenList = new ArrayList<Token>();
         ArrayList<Character> scanner = new ArrayList<>();
+        Parser p;
 
         //these are all temp variables to hold misc information as the lexer is scanning
         Token temp = new Token();
@@ -66,13 +69,13 @@ public class Lexer extends Logger {
                 if(currPos < curr.size() && Pattern.matches("\\{|\\}|\\(|\\)|\\=|!|\\|\\+|\"|\\+|\\$|/|\\ |\s", Character.toString(curr.get(currPos)))) {
                     //if current symbol could potentially be a double char symbol (boolean operators or comment)
                     if(curr.get(currPos) == '!' && curr.get(currPos+1) == '=') {
-                            temp = new Token("!=", "BOOL_OP_NE", i+":"+currPos);
+                            temp = new Token("!=", "BOOLOP_NE", i+":"+currPos);
                             super.log("DEBUG", "Lexer", temp.toString(), this.mode);
                             tokenList.add(temp);
                             currPos++;
                     }
                     else if(curr.get(currPos) == '=' && curr.get(currPos+1) == '=') {
-                            temp = new Token("==", "BOOL_OP_E", i+":"+currPos);
+                            temp = new Token("==", "BOOLOP_E", i+":"+currPos);
                             super.log("DEBUG", "Lexer", temp.toString(), this.mode);
                             tokenList.add(temp);
                             currPos++;
@@ -116,20 +119,25 @@ public class Lexer extends Logger {
                             temp = new Token("$", "EOP", i+":"+currPos);
                             super.log("DEBUG", "Lexer", temp.toString(), this.mode);
                             tokenList.add(temp);
-                            if(Errors.size() > 0) {  //if there are errors, do not parse, log errors, and begin lex of next program.
+                            if(Errors.size() > 0 || Warnings.size() > 0) {  //if there are errors, do not parse, log errors, and begin lex of next program.
                                 super.log("SYSTEM", "Lexer", "Lexical Analyis FAILED with the following errors:", mode);
                                 super.Dump(Errors, "Lexer", mode);
-                                if(Warnings.size() > 0) {
-                                    super.log("SYSTEM", "Lexer", "Lexical Analyis issued the following warnings:", mode);
-                                    super.Dump(Warnings, "Lexer", mode);
+                            }
+                            if(Warnings.size() > 0) {
+                                super.log("SYSTEM", "Lexer", "Lexical Analyis issued the following warnings:", mode);
+                                super.Dump(Warnings, "Lexer", mode);
+                            }
+                            if(Warnings.size() == 0 && Errors.size() == 0) {
+                                super.log("SYSTEM", "Lexer", "Lexical Analysis Passed on program #" + programCount, mode);
+                                p = new Parser(tokenList, mode);
+                                if(mode != "TEST") {
+                                    p.Parse();
                                 }
                             }
-                            else {
-                                super.log("SYSTEM", "Lexer", "Lexical Analysis Passed on program #" + programCount, mode);
-                                //start parse here
-                            }
                             tokenList.clear();
+
                             Errors.clear();
+                            Warnings.clear();
                             programCount++;
                             if(i+1 >= chars.size()) {
                                 super.log("SYSTEM", "Lexer", "Lexing program #" + programCount, mode);
@@ -205,21 +213,25 @@ public class Lexer extends Logger {
         if(tokenList.size() > 0 && tokenList.get(tokenList.size()-1).getValue() != "$") {
             super.log("WARNING", "Lexer", "MISSING EOP TOKEN [ $ ]", mode);
             Warnings.add(new Alert(chars.size()+":"+currPos, "MISSING EOP TOKEN [ $ ]"));
-            temp = new Token("$", "EOP", chars.size()+":"+currPos);
-            super.log("DEBUG", "Lexer", temp.toString(), mode);
-            tokenList.add(temp);
             if(Errors.size() > 0) {
                 super.log("SYSTEM", "Lexer", "Lexical analysis FAILED with the following errors:", mode);
                 super.Dump(Errors, "Lexer", mode);
             }
             else {
                 super.log("SYSTEM", "Lexer", "Lexical Analysis Passed on program #" + programCount, mode);
-                //parse
+                temp = new Token("$", "EOP", chars.size()+":"+currPos);
+                tokenList.add(temp);
+                if(mode != "TEST") {
+                    p = new Parser(tokenList, mode);
+                    p.Parse();
+                }
             }
         }
         if(chars.get(0).size() == 0) {
             super.log("WARNING", "Lexer", "No code was provided", mode);
+            Warnings.add(new Alert(chars.size()+":"+currPos, "No code was provided"));
         }
+
         return super.getLogs();
     }//end Scan
 
@@ -253,19 +265,19 @@ public class Lexer extends Logger {
                 classified = "BOOL_FVAL";
             }
             else if(Pattern.matches("[0-9]", token)) {
-                classified = "INT_NUM";
+                classified = "DIGIT";
             }
             else if(Pattern.matches("\\{", token)) { 
-                classified = "L_BRACE";
+                classified = "OPEN_BLOCK";
             }
             else if(Pattern.matches("\\}", token)) {
-                classified = "R_BRACE";
+                classified = "CLOSE_BLOCK";
             }
             else if(Pattern.matches("\\(", token)) {
-                classified = "L_PAREN";
+                classified = "OPEN_PAREN";
             }
             else if(Pattern.matches("\\)", token)) {
-                classified = "R_PAREN";
+                classified = "CLOSE_PAREN";
             }
             else if(Pattern.matches("\\$", token)) {
                 classified = "EOP";
