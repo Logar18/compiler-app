@@ -10,20 +10,18 @@ public class Compiler {
 
     }
 
-    public static List<String> Compile(String filename, String mode) throws Exception {
+    public void Compile(String filename, String mode) throws Exception {
         ArrayList<ArrayList<Character>> chars = new ArrayList<>();
         chars = generateCharsByFile(filename);
         Lexer L = new Lexer(mode);
-        List<String> results = L.Scan(chars);
-        return results;
+        L.Scan(chars);
     }
 
-    public List<String> CompileByString(String source, String mode) throws Exception {
+    public void CompileByString(String source, String mode) throws Exception {
         ArrayList<ArrayList<Character>> chars = new ArrayList<>();
         chars = generateCharsByString(source);
         Lexer L = new Lexer(mode);
-        List<String> results = L.Scan(chars);
-        return results;
+        L.Scan(chars);
     }
 
     //Used resources:

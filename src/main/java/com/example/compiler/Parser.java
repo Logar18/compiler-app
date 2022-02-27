@@ -54,7 +54,7 @@ public class Parser extends Logger{
     }
 
     public void ParseStatementList() {
-        super.log("DEBUG", "Parser", "PARSING StatementList...", mode);
+        super.log("DEBUG", "Parser", "PARSING StatementList... i = " + this.i, mode);
         if(stream.get(this.i).getType() != "CLOSE_BLOCK") { //if it's the start of an expression
             ParseStatement();
             ParseStatementList();

@@ -12,7 +12,7 @@ public class Lexer extends Logger {
         this.mode = mode;
     }
 
-    public List<String> Scan(ArrayList<ArrayList<Character>> chars) {
+    public void Scan(ArrayList<ArrayList<Character>> chars) {
         //return value
 
         //temp data structures
@@ -230,8 +230,6 @@ public class Lexer extends Logger {
             super.log("WARNING", "Lexer", "No code was provided", mode);
             Warnings.add(new Alert(chars.size()+":"+currPos, "No code was provided"));
         }
-
-        return super.getLogs();
     }//end Scan
 
     public String Classify(String token) {

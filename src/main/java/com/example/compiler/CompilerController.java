@@ -9,13 +9,18 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 @RestController
 @RequestMapping(path="/compile")
-public class CompilerController {
+public class CompilerController extends Logger {
 
     @CrossOrigin
     @GetMapping("/")
     public List<String> HelloWorld(@RequestParam String source) throws Exception {
         Compiler c = new Compiler();
-        List<String> results = c.CompileByString(source, "VERBOSE");
-        return results;
+        try {
+            c.CompileByString(source, "VERBOSE");
+            return super.getLogs();
+        } catch (Exception e) {
+            return super.getLogs();
+        }
+
     }
 }
