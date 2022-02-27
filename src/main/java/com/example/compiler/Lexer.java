@@ -135,7 +135,6 @@ public class Lexer extends Logger {
                                 }
                             }
                             tokenList.clear();
-
                             Errors.clear();
                             Warnings.clear();
                             programCount++;
