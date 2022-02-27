@@ -13,8 +13,6 @@ public class Lexer extends Logger {
     }
 
     public List<String> Scan(ArrayList<ArrayList<Character>> chars) {
-        //return value
-
         //temp data structures
         List<Alert> Errors = new ArrayList<Alert>();
         List<Alert> Warnings = new ArrayList<Alert>();
@@ -24,7 +22,7 @@ public class Lexer extends Logger {
         //these are all temp variables to hold misc information as the lexer is scanning
         Token temp = new Token();
         boolean fString = false; boolean fComment = false;
-        String str = ""; String type ="";
+        String str = ""; String type =""; 
         String foundType=""; String foundValue="";
         int currPos = 0; int foundPos = -1;
         int programCount = 1; int tempPos = 0;
@@ -68,16 +66,16 @@ public class Lexer extends Logger {
                 if(currPos < curr.size() && Pattern.matches("\\{|\\}|\\(|\\)|\\=|!|\\|\\+|\"|\\+|\\$|/|\\ |\s", Character.toString(curr.get(currPos)))) {
                     //if current symbol could potentially be a double char symbol (boolean operators or comment)
                     if(curr.get(currPos) == '!' && curr.get(currPos+1) == '=') {
-                        temp = new Token("!=", "BOOL_OP_NE", i+":"+currPos);
-                        super.log("DEBUG", "Lexer", temp.toString(), this.mode);
-                        tokenList.add(temp);
-                        currPos++;
+                            temp = new Token("!=", "BOOL_OP_NE", i+":"+currPos);
+                            super.log("DEBUG", "Lexer", temp.toString(), this.mode);
+                            tokenList.add(temp);
+                            currPos++;
                     }
                     else if(curr.get(currPos) == '=' && curr.get(currPos+1) == '=') {
-                        temp = new Token("==", "BOOL_OP_E", i+":"+currPos);
-                        super.log("DEBUG", "Lexer", temp.toString(), this.mode);
-                        tokenList.add(temp);
-                        currPos++;
+                            temp = new Token("==", "BOOL_OP_E", i+":"+currPos);
+                            super.log("DEBUG", "Lexer", temp.toString(), this.mode);
+                            tokenList.add(temp);
+                            currPos++;
                     }
                     else if(curr.get(currPos) == '/' && curr.get(currPos+1) == '*') {
                         currPos = currPos + 2;
@@ -223,68 +221,67 @@ public class Lexer extends Logger {
             super.log("WARNING", "Lexer", "No code was provided", mode);
         }
         return super.getLogs();
-
     }//end Scan
 
     public String Classify(String token) {
-        String classified = "";
-        if(Pattern.matches("int", token)) {
-            classified = "INT_TYPE";
+            String classified = "";
+            if(Pattern.matches("int", token)) {
+                classified = "INT_TYPE";
+            }
+            else if(Pattern.matches("boolean", token)) {
+                classified = "BOOL_TYPE";
+            }
+            else if(Pattern.matches("string", token)) {
+                classified = "STRING_TYPE";
+            }
+            else if(Pattern.matches("^[a-z]$", token)) {
+                classified = "ID";
+            }
+            else if(Pattern.matches("while", token)) {
+                classified = "WHILE_KEYWORD";
+            }
+            else if(Pattern.matches("print", token)) {
+                classified = "PRINT_KEYWORD";
+            }
+            else if(Pattern.matches("if", token)) {
+                classified = "IF_KEYWORD";
+            }
+            else if(Pattern.matches("true", token)) {
+                classified = "BOOL_TVAL";
+            }
+            else if(Pattern.matches("false", token)) {
+                classified = "BOOL_FVAL";
+            }
+            else if(Pattern.matches("[0-9]", token)) {
+                classified = "INT_NUM";
+            }
+            else if(Pattern.matches("\\{", token)) { 
+                classified = "L_BRACE";
+            }
+            else if(Pattern.matches("\\}", token)) {
+                classified = "R_BRACE";
+            }
+            else if(Pattern.matches("\\(", token)) {
+                classified = "L_PAREN";
+            }
+            else if(Pattern.matches("\\)", token)) {
+                classified = "R_PAREN";
+            }
+            else if(Pattern.matches("\\$", token)) {
+                classified = "EOP";
+            }
+            else if(Pattern.matches("\\+", token)) {
+                classified = "INT_OP";
+            }
+            else if (Pattern.matches("\\=", token)) {
+                classified = "ASSIGN";
+            }
+            else if(Pattern.matches(Character.toString('"'), token)) {
+                classified = "D_QUOTE";
+            }
+            else {
+                classified = "NONE";
+            }
+            return classified;
         }
-        else if(Pattern.matches("boolean", token)) {
-            classified = "BOOL_TYPE";
-        }
-        else if(Pattern.matches("string", token)) {
-            classified = "STRING_TYPE";
-        }
-        else if(Pattern.matches("^[a-z]$", token)) {
-            classified = "ID";
-        }
-        else if(Pattern.matches("while", token)) {
-            classified = "WHILE_KEYWORD";
-        }
-        else if(Pattern.matches("print", token)) {
-            classified = "PRINT_KEYWORD";
-        }
-        else if(Pattern.matches("if", token)) {
-            classified = "IF_KEYWORD";
-        }
-        else if(Pattern.matches("true", token)) {
-            classified = "BOOL_TVAL";
-        }
-        else if(Pattern.matches("false", token)) {
-            classified = "BOOL_FVAL";
-        }
-        else if(Pattern.matches("[0-9]", token)) {
-            classified = "INT_NUM";
-        }
-        else if(Pattern.matches("\\{", token)) {
-            classified = "L_BRACE";
-        }
-        else if(Pattern.matches("\\}", token)) {
-            classified = "R_BRACE";
-        }
-        else if(Pattern.matches("\\(", token)) {
-            classified = "L_PAREN";
-        }
-        else if(Pattern.matches("\\)", token)) {
-            classified = "R_PAREN";
-        }
-        else if(Pattern.matches("\\$", token)) {
-            classified = "EOP";
-        }
-        else if(Pattern.matches("\\+", token)) {
-            classified = "INT_OP";
-        }
-        else if (Pattern.matches("\\=", token)) {
-            classified = "ASSIGN";
-        }
-        else if(Pattern.matches(Character.toString('"'), token)) {
-            classified = "D_QUOTE";
-        }
-        else {
-            classified = "NONE";
-        }
-        return classified;
-    }
 }

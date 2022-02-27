@@ -15,7 +15,7 @@ public class CompilerController {
     @GetMapping("/")
     public List<String> HelloWorld(@RequestParam String source) throws Exception {
         Compiler c = new Compiler();
-        return c.CompileByString(source, "VERBOSE");
-
+        List<String> results = c.CompileByString(source, "VERBOSE");
+        return results;
     }
 }

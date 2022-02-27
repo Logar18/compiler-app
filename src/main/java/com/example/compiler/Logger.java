@@ -22,19 +22,24 @@ public class Logger {
                 case("DEBUG"):
                     if(mode == "VERBOSE") {
                         System.out.println(ANSI_GREEN + "[DEBUG] "  + ANSI_RESET + source + " - " + message);
+                        logs.add("[DEBUG] "+ source + " - " + message);
                     }
                     break;
                 case("ERROR"):
                     System.out.println(ANSI_RED + "[ERROR] " + ANSI_RESET + source + " - " + message);
+                    logs.add("[ERROR] "+ source + " - " + message);
                     break;
                 case("SYSTEM"):
                     System.out.println(ANSI_CYAN + "[SYSTEM] " + ANSI_RESET + source + " - " + message);
+                    logs.add("[SYSTEM] "+ source + " - " + message);
                     break;
                 case("WARNING"):
                     System.out.println(ANSI_YELLOW + "[WARNING] " + ANSI_RESET + source + " - " + message);
+                    logs.add("[WARNING] "+ source + " - " + message);
                     break;
                 default:
                     System.out.println(type + " " + source + " - " + message);
+                    logs.add(type + " " + source + " - " + message);
                     break;
 
             }

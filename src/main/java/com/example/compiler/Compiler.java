@@ -18,7 +18,7 @@ public class Compiler {
         return results;
     }
 
-    public static List<String> CompileByString(String source, String mode) throws Exception {
+    public List<String> CompileByString(String source, String mode) throws Exception {
         ArrayList<ArrayList<Character>> chars = new ArrayList<>();
         chars = generateCharsByString(source);
         Lexer L = new Lexer(mode);
