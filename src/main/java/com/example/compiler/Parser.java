@@ -54,41 +54,52 @@ public class Parser extends Logger{
     }
 
     public void ParseStatementList() {
-        super.log("DEBUG", "Parser", "PARSING StatementList... i = " + this.i, mode);
-        if(stream.get(this.i).getType() != "CLOSE_BLOCK") { //if it's the start of an expression
-            ParseStatement();
-            ParseStatementList();
+        if(this.i < this.stream.size()) {
+            super.log("DEBUG", "Parser", "PARSING StatementList... i = " + this.i, mode);
+            if(stream.get(this.i).getType() != "CLOSE_BLOCK") { //if it's the start of an expression
+                ParseStatement();
+                ParseStatementList();
+            }
+            else {
+                //do nothing, its an empty string transition
+            }
         }
         else {
-            //do nothing, its an empty string transition
+            super.log("ERROR", "Parser", "Unexpected parse error attempting to parse a STATEMENT LIST", mode);
         }
     }
 
     public void ParseStatement() {
-        super.log("DEBUG", "Parser", "PARSING Statement...", mode);
-        String currType = stream.get(this.i).getType();
-        if(currType == "PRINT_KEYWORD") {
-            ParsePrintStatement();
-        }
-        else if(currType == "ID") {
-            ParseAssignmentStatement();
-        }
-        else if(this.types.contains(currType)) {
-            ParseVarDeclr();
-        }
-        else if(currType == "WHILE_KEYWORD") {
-            ParseWhileStatement();
-        }
-        else if(currType == "IF_KEYWORD") {
-            ParseIfStatement();
-        }
-        else if(currType == "OPEN_BLOCK") {
-            ParseBlock();
+        if(this.i < this.stream.size()) {
+            super.log("DEBUG", "Parser", "PARSING Statement...", mode);
+            String currType = stream.get(this.i).getType();
+            if(currType == "PRINT_KEYWORD") {
+                ParsePrintStatement();
+            }
+            else if(currType == "ID") {
+                ParseAssignmentStatement();
+            }
+            else if(this.types.contains(currType)) {
+                ParseVarDeclr();
+            }
+            else if(currType == "WHILE_KEYWORD") {
+                ParseWhileStatement();
+            }
+            else if(currType == "IF_KEYWORD") {
+                ParseIfStatement();
+            }
+            else if(currType == "OPEN_BLOCK") {
+                ParseBlock();
+            }
+            else {
+                super.log("ERROR", "Parser", "Expected a statement token, recieved [ " + currType + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
+                this.i++;
+            }
         }
         else {
-            super.log("ERROR", "Parser", "Expected a statement token, recieved [ " + currType + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
-            this.i++;
+            super.log("ERROR", "Parser", "Unexpected parse error attempting to parse a STATEMENT", mode);
         }
+        
     }
 
     public void ParsePrintStatement() {
@@ -127,44 +138,54 @@ public class Parser extends Logger{
     }
 
     public void ParseExpr() {
-        super.log("DEBUG", "Parser", "PARSING Expr...", mode);
-        String currType = this.stream.get(this.i).getType();
-        if(currType == "D_QUOTE") {
-            ParseStringExpr();
-        }
-        else if(currType == "DIGIT") {
-            ParseIntExpr();
-        }
-        else if(currType == "OPEN_PAREN") {
-            match("OPEN_PAREN");
-            ParseBooleanExpr();
-        }
-        else if(currType == "ID") {
-            if(this.stream.get(this.i+1).getType() == "INT_OP") {
-                super.log("ERROR", "Parser", "Expected a DIGIT token, recieved [ " + currType + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
+        if(this.i < this.stream.size()) {
+            super.log("DEBUG", "Parser", "PARSING Expr...", mode);
+            String currType = this.stream.get(this.i).getType();
+            if(currType == "D_QUOTE") {
+                ParseStringExpr();
             }
-            match("ID");
-        }
-        else if(this.boolValues.contains(currType)) {
-            ParseBoolVal();
+            else if(currType == "DIGIT") {
+                ParseIntExpr();
+            }
+            else if(currType == "OPEN_PAREN") {
+                match("OPEN_PAREN");
+                ParseBooleanExpr();
+            }
+            else if(currType == "ID") {
+                if(this.stream.get(this.i+1).getType() == "INT_OP") {
+                    super.log("ERROR", "Parser", "Expected a DIGIT token, recieved [ " + currType + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
+                }
+                match("ID");
+            }
+            else if(this.boolValues.contains(currType)) {
+                ParseBoolVal();
+            }
+            else {
+                super.log("ERROR", "Parser", "Expected an Expression token, recieved [ " + currType + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
+                this.i++;
+            }
         }
         else {
-            super.log("ERROR", "Parser", "Expected an Expression token, recieved [ " + currType + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
-            this.i++;
+            super.log("ERROR", "Parser", "Unexpected parse error attempting to parse an EXPR", mode);
         }
     }
 
     public void ParseBoolVal() {
-        super.log("DEBUG", "Parser", "PARSING boolval...", mode);
-        if(this.stream.get(this.i).getType() == "BOOL_FVAL") {
-            match("BOOL_FVAL");
-        }
-        else if(this.stream.get(this.i).getType() == "BOOL_TVAL") {
-            match("BOOL_TVAL");
+        if(this.i < this.stream.size()) {
+            super.log("DEBUG", "Parser", "PARSING boolval...", mode);
+            if(this.stream.get(this.i).getType() == "BOOL_FVAL") {
+                match("BOOL_FVAL");
+            }
+            else if(this.stream.get(this.i).getType() == "BOOL_TVAL") {
+                match("BOOL_TVAL");
+            }
+            else {
+                super.log("ERROR", "Parser", "Expected a boolean value, recieved [ " + this.stream.get(this.i).getType() + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
+                this.i++;
+            }
         }
         else {
-            super.log("ERROR", "Parser", "Expected a boolean value, recieved [ " + this.stream.get(this.i).getType() + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
-            this.i++;
+            super.log("ERROR", "Parser", "Unexpected parse error attempting to parse a BOOLEAN VALUE", mode);
         }
     }
 
@@ -180,10 +201,16 @@ public class Parser extends Logger{
     public void ParseIntExpr() {
         super.log("DEBUG", "Parser", "PARSING IntExpr...", mode);
         match("DIGIT");
-        if(stream.get(this.i).getType() == "INT_OP") {
-            match("INT_OP");
-            ParseExpr();
+        if(this.i < this.stream.size()) {
+            if(stream.get(this.i).getType() == "INT_OP") {
+                match("INT_OP");
+                ParseExpr();
+            }
         }
+        else {
+            super.log("ERROR", "Parser", "Unexpected parse error attempting to parse an INT_OP", mode);
+        }
+
     }
 
     public void ParseCharList() {
@@ -200,27 +227,38 @@ public class Parser extends Logger{
 
     public void ParseBoolop() {
         super.log("DEBUG", "Parser", "PARSING boolop...", mode);
-        if(stream.get(this.i).getType() == "BOOLOP_E") {
-            match("BOOLOP_E");
-        }
-        else if(stream.get(this.i).getType() == "BOOLOP_NE"){
-            match("BOOLOP_NE");
+        if(this.i < this.stream.size()) {
+            if(stream.get(this.i).getType() == "BOOLOP_E") {
+                match("BOOLOP_E");
+            }
+            else if(stream.get(this.i).getType() == "BOOLOP_NE"){
+                match("BOOLOP_NE");
+            }
+            else {
+                super.log("ERROR", "Parser", "Expected a boolean operator, recieved [ " + this.stream.get(this.i).getType() + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
+                this.i++;
+            }
         }
         else {
-            super.log("ERROR", "Parser", "Expected a boolean operator, recieved [ " + this.stream.get(this.i).getType() + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
-            this.i++;
+            super.log("ERROR", "Parser", "Unexpected parse error attempting to parse a BOOLEAN OPERATOR", mode);
         }
     }
     
     public void match(String expectedTokens) {
-        if(stream.get(i).getType() == expectedTokens) {
-            super.log("DEBUG", "Parser", "MATCH FOUND: Consumed expected token of " + stream.get(this.i).getType() + " [ i = " + this.i + " ] ", mode);
-            this.i++;
+        if(this.i < this.stream.size()) {
+            if(stream.get(i).getType() == expectedTokens) {
+                super.log("DEBUG", "Parser", "MATCH FOUND: Consumed expected token of " + stream.get(this.i).getType() + " [ i = " + this.i + " ] ", mode);
+                this.i++;
+            }
+            else {
+                super.log("ERROR", "Parser", "Expected " + expectedTokens + " but got [ " + this.stream.get(this.i).getType() + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
+                this.i++;
+            }
         }
         else {
-            super.log("ERROR", "Parser", "Expected " + expectedTokens + " but got [ " + this.stream.get(this.i).getType() + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
-            this.i++;
+            super.log("ERROR", "Parser", "Unexpected parse error attempting to match for: [ " + expectedTokens + " ]", mode);
         }
+
     }
 
 }
