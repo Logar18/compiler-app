@@ -7,8 +7,9 @@ import java.io.*;
 
 public class Compiler {
     public static void main(String[] args) throws Exception {
-
+        
     }
+
 
     public void Compile(String filename, String mode) throws Exception {
         ArrayList<ArrayList<Character>> chars = new ArrayList<>();
@@ -54,7 +55,6 @@ public class Compiler {
         for(int i = 0; i<source.length(); i++) {
             if(source.charAt(i) == '\n') {
                 System.out.println("NEW LINE");
-//                chars.get(line).add(source.charAt(i));
                 chars.add(new ArrayList<Character>());
                 line++;
             }
