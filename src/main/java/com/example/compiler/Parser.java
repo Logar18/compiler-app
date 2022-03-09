@@ -38,6 +38,7 @@ public class Parser extends Logger{
     public void Parse() {
         ParseProgram();
         System.out.println("CST STRING:" + this.CST.toString());
+        System.out.println(this.CST);
         this.i = 0;
         this.stream.clear();
     }
@@ -47,6 +48,7 @@ public class Parser extends Logger{
         super.log("DEBUG", "Parser", "PARSING Program...", mode);
         ParseBlock();
         match("EOP");
+        this.CST.endChildren();
     }
 
     public void ParseBlock() {
@@ -55,6 +57,7 @@ public class Parser extends Logger{
         match("OPEN_BLOCK");
         ParseStatementList();
         match("CLOSE_BLOCK");
+        this.CST.endChildren();
     }
 
     public void ParseStatementList() {
@@ -72,6 +75,7 @@ public class Parser extends Logger{
         else {
             super.log("ERROR", "Parser", "Unexpected parse error attempting to parse a STATEMENT LIST", mode);
         }
+        this.CST.endChildren();
     }
 
     public void ParseStatement() {
@@ -104,7 +108,9 @@ public class Parser extends Logger{
         }
         else {
             super.log("ERROR", "Parser", "Unexpected parse error attempting to parse a STATEMENT", mode);
-        }   
+            this.i++;
+        }  
+        this.CST.endChildren();
     }
 
     public void ParsePrintStatement() {
@@ -114,6 +120,7 @@ public class Parser extends Logger{
         match("OPEN_PAREN");
         ParseExpr();
         match("CLOSE_PAREN");
+        this.CST.endChildren();
     }
 
     public void ParseAssignmentStatement() {
@@ -122,6 +129,7 @@ public class Parser extends Logger{
         match("ID");
         match("ASSIGN");
         ParseExpr();
+        this.CST.endChildren();
     }
 
     public void ParseVarDeclr() {
@@ -129,6 +137,7 @@ public class Parser extends Logger{
         super.log("DEBUG", "Parser", "PARSING VarDecl...", mode);
         match(currType());
         match("ID");
+        this.CST.endChildren();
     }
 
     public void ParseWhileStatement() {
@@ -137,6 +146,7 @@ public class Parser extends Logger{
         match("WHILE_KEYWORD");
         ParseBooleanExpr();
         ParseBlock();
+        this.CST.endChildren();
     }
 
     public void ParseIfStatement() {
@@ -145,7 +155,9 @@ public class Parser extends Logger{
         match("IF_KEYWORD");
         ParseBooleanExpr();
         ParseBlock();
+        this.CST.endChildren();
     }
+    
 
     public void ParseExpr() {
         this.CST.addNode("Expr", "branch");
@@ -182,7 +194,9 @@ public class Parser extends Logger{
         }
         else {
             super.log("ERROR", "Parser", "Unexpected parse error attempting to parse an EXPR", mode);
+            this.i++;
         }
+        this.CST.endChildren();
     }
 
     public void ParseBoolVal() {
@@ -202,7 +216,9 @@ public class Parser extends Logger{
         }
         else {
             super.log("ERROR", "Parser", "Unexpected parse error attempting to parse a BOOLEAN VALUE", mode);
+            this.i++;
         }
+        this.CST.endChildren();
     }
 
     public void ParseBooleanExpr() {
@@ -213,6 +229,7 @@ public class Parser extends Logger{
         ParseBoolop();
         ParseExpr();
         match("CLOSE_PAREN");
+        this.CST.endChildren();
     }
 
     public void ParseIntExpr() {
@@ -227,7 +244,10 @@ public class Parser extends Logger{
         }
         else {
             super.log("ERROR", "Parser", "Unexpected parse error attempting to parse an INT_OP", mode);
+            this.i++;
+            ParseExpr();
         }
+        this.CST.endChildren();
 
     }
 
@@ -235,6 +255,7 @@ public class Parser extends Logger{
         this.CST.addNode("CharList", "branch");
         super.log("DEBUG", "Parser", "PARSING CharList...", mode);
         match("STRING_VALUE");
+        this.CST.endChildren();
     }
 
     public void ParseStringExpr() {
@@ -243,6 +264,7 @@ public class Parser extends Logger{
         match("D_QUOTE");
         ParseCharList();
         match("D_QUOTE");
+        this.CST.endChildren();
     }
 
     public void ParseBoolop() {
@@ -262,15 +284,18 @@ public class Parser extends Logger{
         }
         else {
             super.log("ERROR", "Parser", "Unexpected parse error attempting to parse a BOOLEAN OPERATOR", mode);
+            this.i++;
         }
+        this.CST.endChildren();
     }
     
     public void match(String expectedTokens) {
         if(this.i < this.stream.size()) {
             if(currType() == expectedTokens) {
-                this.CST.addNode("StatementList", "leaf");
+                this.CST.addNode(currType(), "leaf");
                 super.log("DEBUG", "Parser", "MATCH FOUND: Consumed expected token of " + currType() + " [ i = " + this.i + " ] ", mode);
                 this.i++;
+                this.CST.endChildren();
             }
             else {
                 super.log("ERROR", "Parser", "Expected " + expectedTokens + " but got [ " + currType() + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);

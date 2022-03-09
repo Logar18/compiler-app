@@ -63,7 +63,6 @@ public class Compiler {
             }
         }
         System.out.println(chars);
-
         return chars;
     }
 

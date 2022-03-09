@@ -15,17 +15,20 @@ public class Tree {
 
         if(this.root == null) {
             this.root = newNode;
+            newNode.setParent(null);
         }
         else {
             newNode.setParent(this.curr);
-            this.curr.addChild(newNode);
+            newNode.getParent().addChild(newNode);
         }
-        if(kind == "branch") {
+        if(kind.toLowerCase() != "leaf") {
             this.curr = newNode;
         }
     }
 
     public void endChildren() {
+        // System.out.println("CURR: " + this.curr);
+        // System.out.println("CURR Parent: " + this.curr.getParent());
         if(this.curr.getParent() != null) {
             this.curr = this.curr.getParent();
         }
@@ -35,9 +38,7 @@ public class Tree {
     }
 
     public String toString() {
-        String result = expand(this.root, 0, "");
-        return result;
-
+        return expand(this.root, 0, "");
     }
 
     public String expand(Node node, int depth, String result) {
@@ -54,7 +55,6 @@ public class Tree {
                 result = expand(node.getChildren().get(i), depth + 1, result);
             }
         }
-        System.out.println("RESULT: " + result);
         return result;
     }
 
