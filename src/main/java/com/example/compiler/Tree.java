@@ -38,21 +38,22 @@ public class Tree {
     }
 
     public String toString() {
-        return expand(this.root, 0, "");
+        return expand(this.root, 0);
     }
 
-    public String expand(Node node, int depth, String result) {
+    public String expand(Node node, int depth) {   
+        String result = "";
         for(int i = 0; i < depth; i++) {
             result += "-";
         }
-        if( node.getChildren().size() == 0) {
+        if(node.getChildren().size() == 0) {
             result += "[" + node.getName() + "]";
             result += "\n";
         }
         else {
-            result += "<" + node.getName() + ">";
+            result += "<" + node.getName() + "> \n";
             for(int i = 0; i< node.getChildren().size(); i++) {
-                result = expand(node.getChildren().get(i), depth + 1, result);
+                result += expand(node.getChildren().get(i), depth + 1);
             }
         }
         return result;

@@ -48,7 +48,7 @@ public class Parser extends Logger{
         super.log("DEBUG", "Parser", "PARSING Program...", mode);
         ParseBlock();
         match("EOP");
-        this.CST.endChildren();
+        // this.CST.endChildren();
     }
 
     public void ParseBlock() {
@@ -61,12 +61,13 @@ public class Parser extends Logger{
     }
 
     public void ParseStatementList() {
-        this.CST.addNode("StatementList", "branch");
         if(this.i < this.stream.size()) {
             super.log("DEBUG", "Parser", "PARSING StatementList... i = " + this.i, mode);
             if(currType() != "CLOSE_BLOCK") { //if it's the start of an expression
+                this.CST.addNode("StatementList", "branch");
                 ParseStatement();
                 ParseStatementList();
+                this.CST.endChildren();
             }
             else {
                 //do nothing, its an empty string transition
@@ -75,7 +76,7 @@ public class Parser extends Logger{
         else {
             super.log("ERROR", "Parser", "Unexpected parse error attempting to parse a STATEMENT LIST", mode);
         }
-        this.CST.endChildren();
+        
     }
 
     public void ParseStatement() {
@@ -85,21 +86,28 @@ public class Parser extends Logger{
             String currType = currType();
             if(currType == "PRINT_KEYWORD") {
                 ParsePrintStatement();
+                this.CST.endChildren();
             }
             else if(currType == "ID") {
                 ParseAssignmentStatement();
+                this.CST.endChildren();
             }
             else if(this.types.contains(currType)) {
                 ParseVarDeclr();
+                this.CST.endChildren();
             }
             else if(currType == "WHILE_KEYWORD") {
                 ParseWhileStatement();
+                this.CST.endChildren();
             }
             else if(currType == "IF_KEYWORD") {
                 ParseIfStatement();
+                this.CST.endChildren();
             }
             else if(currType == "OPEN_BLOCK") {
                 ParseBlock();
+                this.CST.endChildren();
+
             }
             else {
                 super.log("ERROR", "Parser", "Expected start of a STATEMENT token, recieved [ " + currType + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
@@ -110,7 +118,6 @@ public class Parser extends Logger{
             super.log("ERROR", "Parser", "Unexpected parse error attempting to parse a STATEMENT", mode);
             this.i++;
         }  
-        this.CST.endChildren();
     }
 
     public void ParsePrintStatement() {
@@ -166,12 +173,15 @@ public class Parser extends Logger{
             String currType = currType();
             if(currType == "D_QUOTE") {
                 ParseStringExpr();
+                this.CST.endChildren();
             }
             else if(currType == "DIGIT") {
                 ParseIntExpr();
+                this.CST.endChildren();
             }
             else if(currType == "OPEN_PAREN") {
                 ParseBooleanExpr();
+                this.CST.endChildren();
             }
             else if(currType == "ID") {
                 if(nextFrom(this.i) == "INT_OP") {
@@ -179,13 +189,16 @@ public class Parser extends Logger{
                     this.i++;
                     match("INT_OP");
                     match("ID");
+                    this.CST.endChildren();
                 }
                 else {
                     match("ID");
+                    this.CST.endChildren();
                 }
             }
             else if(this.boolValues.contains(currType)) {
                 ParseBoolVal();
+                this.CST.endChildren();
             }
             else {
                 super.log("ERROR", "Parser", "Expected an Expression token, recieved [ " + currType + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
@@ -196,7 +209,6 @@ public class Parser extends Logger{
             super.log("ERROR", "Parser", "Unexpected parse error attempting to parse an EXPR", mode);
             this.i++;
         }
-        this.CST.endChildren();
     }
 
     public void ParseBoolVal() {
@@ -295,7 +307,6 @@ public class Parser extends Logger{
                 this.CST.addNode(currType(), "leaf");
                 super.log("DEBUG", "Parser", "MATCH FOUND: Consumed expected token of " + currType() + " [ i = " + this.i + " ] ", mode);
                 this.i++;
-                this.CST.endChildren();
             }
             else {
                 super.log("ERROR", "Parser", "Expected " + expectedTokens + " but got [ " + currType() + " ] " + "at " + this.stream.get(this.i).getLocation(), mode);
@@ -303,7 +314,7 @@ public class Parser extends Logger{
             }
         }
         else {
-            super.log("ERROR", "Parser", "Unexpected parse error attempting to match for: [ " + expectedTokens + " ]", mode);
+            super.log("ERROR", "Parser", "Unexpected parse error attempting to zmatch for: [ " + expectedTokens + " ]", mode);
         }
 
     }
